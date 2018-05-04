@@ -6,7 +6,7 @@ $("#ageForm").submit(function (e) {
     $("#searchBtn").html('Buscando...');
 
     var uri = 'https://query.wikidata.org/sparql?format=json&query=';
-    var query = 'SELECT distinct ?item ?birth_name ?birth ?death ?age WHERE {?item (wdt:P31/wdt:P279*) wd:Q5. ?item wdt:P1477 ?birth_name. ?item wdt:P569 ?birth. ?item wdt:P570 ?death. bind( year(?death)-year(?birth) as ?age )FILTER(?age=' + age + ')}LIMIT 200';
+    var query = 'SELECT distinct ?item ?birth_name ?birth ?age WHERE { ?item (wdt:P31/wdt:P279*) wd:Q5. ?item wdt:P1477 ?birth_name. ?item wdt:P569 ?birth. FILTER NOT EXISTS {?item wdt:P570 ?death } bind( year(now())-year(?birth) as ?age ) FILTER(?age=' + age + ')}LIMIT 100';
 
     var requestUri = uri + query;
 
@@ -41,10 +41,6 @@ $("#ageForm").submit(function (e) {
                     html = html.concat("</td>");
 
                     html = html.concat("<td>");
-                    html = html.concat(element.death.value);
-                    html = html.concat("</td>");
-
-                    html = html.concat("<td>");
                     html = html.concat(element.age.value);
                     html = html.concat("</td>");
                     html = html.concat("</tr>");
@@ -62,6 +58,10 @@ $("#ageForm").submit(function (e) {
         error: function (a, b, c) {
             $("#searchBtn").prop("disabled", false);
             $("#searchBtn").html('Buscar');
+
+            var html = "<label>El tiempo de búsqueda a excedido</label>";
+            $("#resultsDiv").html(html);
+
             console.log(a);
         }
     });
